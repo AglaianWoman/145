@@ -128,7 +128,12 @@ def transformDollar(money):
     return sub(r'[^\d.]', '', money)
 
 
-
+def writeLine(toFile, *attributes):
+    for x in range(0,len(attributes)-1):
+        toFile.write(attributes[x])
+        toFile.write('<>')
+    toFile.write(attributes[len(attributes)-1])
+    toFile.write('\n')
 
 
 
@@ -178,6 +183,7 @@ def parseXml(f):
         userID = sellerNode.getAttribute('UserID')
         users += userID
         description = getElementTextByTagNameNR(item, 'Description');
+        writeLine(item_file, itemID, name, currently)
 
 
 
