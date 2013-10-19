@@ -182,7 +182,7 @@ def parseXml(f):
         
         if (sellerID not in sellers):
             if (sellerID in users):
-                users.remove(sellerID)
+                del users[sellerID]
             sellers += sellerID
             rating = sellerNode.getAttribute('Rating')
             location = getElementTextByTagNameNR(item, 'Location')
@@ -190,17 +190,25 @@ def parseXml(f):
             writeLine(user_file, sellerID, rating, location, country)
 
         bidsNode = getElementByTagNameNR(item, 'Bids')
-        bids = getElementsByTagNameNR(bidsNode, 'Bids')
-        #print bids[0];
+        bids = getElementsByTagNameNR(bidsNode, 'Bid')
+
         for bid in bids:
             bidderNode = getElementByTagNameNR(bid, 'Bidder')
             userID = bidderNode.getAttribute('UserID')
-            time = transformDttm(getElementTextByTagNameNR(bidderNode, 'Time'))
-            amount = transformDollar(getElementTextByTagNameNR(bidderNode, 'Amount'))
+
+            time = transformDttm(getElementTextByTagNameNR(bid, 'Time'))
+            amount = transformDollar(getElementTextByTagNameNR(bid, 'Amount'))
             writeLine(bid_file, itemID, userID, time, amount)
 
-            rating = bidderNode.getAttribute('Rating')
-            users[userID] = rating
+            if not(userID in sellers):
+                #print 'got here'
+                rating = bidderNode.getAttribute('Rating')
+                users[userID] = rating
+
+    #print users;
+    for user in users.keys():
+        #print 'got here'
+        writeLine(user_file, user, users[user], 'NULL', 'NULL')
             
 
 
