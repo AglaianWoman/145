@@ -1,0 +1,3 @@
+.separator <>
+.import item.dat Item
+update Item set Buy_price=null where Buy_price='NULL';
