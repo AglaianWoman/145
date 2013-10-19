@@ -151,12 +151,14 @@ def parseXml(f):
     """
     TO DO: traverse the dom tree to extract information for your SQL tables
     """
+    """
     #print dom;
     print dom.childNodes[0]
     print dom.childNodes[1], dom.childNodes[1].tagName
     print dom.childNodes[1].childNodes[1], dom.childNodes[1].childNodes[1].tagName #item
     print dom.childNodes[1].childNodes[1].childNodes[1] #name
     print dom.childNodes[1].childNodes[1].childNodes[3] #category
+    """
 
     Items = dom.childNodes[1].getElementsByTagName('Item');
     users = []
@@ -164,14 +166,19 @@ def parseXml(f):
     for item in Items:
         itemID = item.getAttribute('ItemID')
         name = getElementTextByTagNameNR(item,'Name')
+        
         categoryNodes = getElementsByTagNameNR(item,'Category')
         categories = []
         for node in categoryNodes:
+            """
             category = getElementText(node)
             category_file.write(itemID)
             category_file.write('<>')
             category_file.write(category)
             category_file.write('\n')
+            """
+            writeLine(category_file, itemID, getElementText(node))
+        
         currently = transformDollar(getElementTextByTagNameNR(item,'Currently'))
         buy_price = transformDollar(getElementTextByTagNameNR(item,'Buy_Price'))
         if (buy_price == ''):
