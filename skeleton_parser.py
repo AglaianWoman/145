@@ -128,6 +128,12 @@ def transformDollar(money):
     return sub(r'[^\d.]', '', money)
 
 
+
+item_file = open('item.dat', 'w')
+category_file = open('category.dat', 'w')
+user_file = open('user.dat', 'w')
+bid_file = open('bid.dat', 'w')
+
 def writeLine(toFile, *attributes):
     for x in range(0,len(attributes)-1):
         toFile.write(attributes[x])
@@ -135,12 +141,22 @@ def writeLine(toFile, *attributes):
     toFile.write(attributes[len(attributes)-1])
     toFile.write('\n')
 
+def writeItem(item, itemID, sellerID):
+    name = getElementTextByTagNameNR(item,'Name')
+    currently = transformDollar(getElementTextByTagNameNR(item,'Currently'))
+    buy_price = transformDollar(getElementTextByTagNameNR(item,'Buy_Price'))
+    if (buy_price == ''):
+        buy_price = 'NULL'
+    first_bid = transformDollar(getElementTextByTagNameNR(item, 'First_Bid'))
+    started = transformDttm(getElementTextByTagNameNR(item, 'Started'))
+    ends = transformDttm(getElementTextByTagNameNR(item, 'Ends'))
+    description = getElementTextByTagNameNR(item, 'Description')
+    writeLine(item_file, itemID, name, currently, buy_price, first_bid, started, ends, sellerID, description)
 
-
-item_file = open('item.dat', 'w')
-category_file = open('category.dat', 'w')
-user_file = open('user.dat', 'w')
-bid_file = open('bid.dat', 'w')
+def writeCategories(item, itemID):
+    categoryNodes = getElementsByTagNameNR(item,'Category')
+    for node in categoryNodes:
+        writeLine(category_file, itemID, getElementText(node))
 
 """
 Parses a single xml file. Currently, there's a loop that shows how to parse
@@ -151,46 +167,41 @@ def parseXml(f):
     """
     TO DO: traverse the dom tree to extract information for your SQL tables
     """
-    """
-    #print dom;
-    print dom.childNodes[0]
-    print dom.childNodes[1], dom.childNodes[1].tagName
-    print dom.childNodes[1].childNodes[1], dom.childNodes[1].childNodes[1].tagName #item
-    print dom.childNodes[1].childNodes[1].childNodes[1] #name
-    print dom.childNodes[1].childNodes[1].childNodes[3] #category
-    """
 
     Items = dom.childNodes[1].getElementsByTagName('Item');
-    users = []
+    sellers = []
+    users = {}
 
     for item in Items:
         itemID = item.getAttribute('ItemID')
-        name = getElementTextByTagNameNR(item,'Name')
-        
-        categoryNodes = getElementsByTagNameNR(item,'Category')
-        categories = []
-        for node in categoryNodes:
-            """
-            category = getElementText(node)
-            category_file.write(itemID)
-            category_file.write('<>')
-            category_file.write(category)
-            category_file.write('\n')
-            """
-            writeLine(category_file, itemID, getElementText(node))
-        
-        currently = transformDollar(getElementTextByTagNameNR(item,'Currently'))
-        buy_price = transformDollar(getElementTextByTagNameNR(item,'Buy_Price'))
-        if (buy_price == ''):
-            buy_price = 'NULL'
-        first_bid = transformDollar(getElementTextByTagNameNR(item, 'First_Bid'))
-        started = transformDttm(getElementTextByTagNameNR(item, 'Started'))
-        ends = transformDttm(getElementTextByTagNameNR(item, 'Ends'))
         sellerNode = getElementByTagNameNR(item, 'Seller')
-        userID = sellerNode.getAttribute('UserID')
-        users += userID
-        description = getElementTextByTagNameNR(item, 'Description');
-        writeLine(item_file, itemID, name, currently)
+        sellerID = sellerNode.getAttribute('UserID')
+        
+        writeItem(item, itemID, sellerID)
+        writeCategories(item, itemID)
+        
+        if (sellerID not in sellers):
+            if (sellerID in users):
+                users.remove(sellerID)
+            sellers += sellerID
+            rating = sellerNode.getAttribute('Rating')
+            location = getElementTextByTagNameNR(item, 'Location')
+            country = getElementTextByTagNameNR(item, 'Country')
+            writeLine(user_file, sellerID, rating, location, country)
+
+        bidsNode = getElementByTagNameNR(item, 'Bids')
+        bids = getElementsByTagNameNR(bidsNode, 'Bids')
+        #print bids[0];
+        for bid in bids:
+            bidderNode = getElementByTagNameNR(bid, 'Bidder')
+            userID = bidderNode.getAttribute('UserID')
+            time = transformDttm(getElementTextByTagNameNR(bidderNode, 'Time'))
+            amount = transformDollar(getElementTextByTagNameNR(bidderNode, 'Amount'))
+            writeLine(bid_file, itemID, userID, time, amount)
+
+            rating = bidderNode.getAttribute('Rating')
+            users[userID] = rating
+            
 
 
 
