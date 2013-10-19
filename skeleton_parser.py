@@ -172,18 +172,27 @@ def parseXml(f):
     sellers = []
     users = {}
 
+    testItems = []
+
     for item in Items:
         itemID = item.getAttribute('ItemID')
         sellerNode = getElementByTagNameNR(item, 'Seller')
         sellerID = sellerNode.getAttribute('UserID')
         
+        if (itemID in testItems):
+            print 'found duplicate'
+        else:
+            testItems.append(itemID)
+
+
+
         writeItem(item, itemID, sellerID)
         writeCategories(item, itemID)
         
         if (sellerID not in sellers):
             if (sellerID in users):
                 del users[sellerID]
-            sellers += sellerID
+            sellers.append(sellerID)
             rating = sellerNode.getAttribute('Rating')
             location = getElementTextByTagNameNR(item, 'Location')
             country = getElementTextByTagNameNR(item, 'Country')
@@ -200,10 +209,12 @@ def parseXml(f):
             amount = transformDollar(getElementTextByTagNameNR(bid, 'Amount'))
             writeLine(bid_file, itemID, userID, time, amount)
 
-            if not(userID in sellers):
+            if (userID not in sellers):
                 #print 'got here'
                 rating = bidderNode.getAttribute('Rating')
                 users[userID] = rating
+            else:
+                print 'does this even happen?'
 
     #print users;
     for user in users.keys():
