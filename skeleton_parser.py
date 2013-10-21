@@ -171,20 +171,11 @@ def parseXml(f):
     Items = dom.childNodes[1].getElementsByTagName('Item');
     sellers = []
     users = {}
-
-    testItems = []
-
+    
     for item in Items:
         itemID = item.getAttribute('ItemID')
         sellerNode = getElementByTagNameNR(item, 'Seller')
         sellerID = sellerNode.getAttribute('UserID')
-        
-        if (itemID in testItems):
-            print 'found duplicate'
-        else:
-            testItems.append(itemID)
-
-
 
         writeItem(item, itemID, sellerID)
         writeCategories(item, itemID)

@@ -204,9 +204,6 @@ def parseXml(f):
             if (userID not in sellers):
                 rating = bidderNode.getAttribute('Rating')
                 users[userID] = rating
-
-    for user in users.keys():
-        writeLine(user_file, user, users[user], 'NULL', 'NULL')
             
 
 
@@ -225,6 +222,8 @@ def main(argv):
         if isXml(f):
             parseXml(f)
             print "Success parsing " + f
+    for user in users.keys():
+        writeLine(user_file, user, users[user], 'NULL', 'NULL')
 
 if __name__ == '__main__':
     main(sys.argv)

@@ -5,3 +5,4 @@ update Item set Buy_price=null where Buy_price='NULL';
 update User set Location=null where Location='NULL';
 update User set Country=null where Country='NULL';
 .import category.dat Category
+.import bid.dat Bid
